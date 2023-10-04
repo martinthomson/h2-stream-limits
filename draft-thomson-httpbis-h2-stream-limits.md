@@ -19,11 +19,10 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
-category: info
+title: "Using HTTP/3 Stream Limits in HTTP/2"
+category: std
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-thomson-httpbis-h2-stream-limits-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
