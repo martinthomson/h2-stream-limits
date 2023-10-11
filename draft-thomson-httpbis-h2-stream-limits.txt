@@ -4,8 +4,8 @@
 
 HTTP                                                          M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                          4 October 2023
-Expires: 6 April 2024
+Intended status: Standards Track                         11 October 2023
+Expires: 13 April 2024
 
 
                   Using HTTP/3 Stream Limits in HTTP/2
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 6 April 2024.
+   This Internet-Draft will expire on 13 April 2024.
 
 Copyright Notice
 
@@ -293,7 +293,8 @@ Table of Contents
 6.2.  Informative References
 
    [CVE-2023-44487]
-              "HTTP/2 Unbounded Request Cancellation", 10 October 2023.
+              "HTTP/2 Rapid Reset CVE Record", 10 October 2023,
+              <https://www.cve.org/CVERecord?id=CVE-2023-44487>.
 
    [HTTP/3]   Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
               June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
