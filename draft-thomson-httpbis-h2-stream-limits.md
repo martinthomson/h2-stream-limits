@@ -37,7 +37,8 @@ informative:
     display: HTTP/3
 
   CVE-2023-44487:
-    title: "HTTP/2 Unbounded Request Cancellation"
+    target: "https://www.cve.org/CVERecord?id=CVE-2023-44487"
+    title: "HTTP/2 Rapid Reset CVE Record"
     date: 2023-10-10
 
 
