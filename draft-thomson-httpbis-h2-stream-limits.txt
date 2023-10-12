@@ -4,8 +4,8 @@
 
 HTTP                                                          M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         11 October 2023
-Expires: 13 April 2024
+Intended status: Standards Track                         12 October 2023
+Expires: 14 April 2024
 
 
                   Using HTTP/3 Stream Limits in HTTP/2
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 April 2024.
+   This Internet-Draft will expire on 14 April 2024.
 
 Copyright Notice
 
@@ -115,14 +115,14 @@ Table of Contents
    necessary to prevent attacks might unintentionally punish some
    clients.
 
-   In HTTP/3 [HTTP/3], the QUIC protocol it is built [QUIC] contains an
-   alternative mechanism for limiting concurrency.  The scheme in QUIC,
-   as described in Section 4.6 of [QUIC], does not set a concurrent
-   stream limit, but instead relies on a peer increasing the maximum
-   allowed stream identifier.  An endpoint cannot create new streams
-   immediately after cancelling an open stream; their peer needs to send
-   a message to make more streams available.  In QUIC therefore, a
-   malicious endpoint can only create and cancel a finite number of
+   The QUIC protocol [QUIC] on which HTTP/3 [HTTP/3] is built contains
+   an alternative mechanism for limiting concurrency.  The scheme in
+   QUIC, as described in Section 4.6 of [QUIC], does not set a
+   concurrent stream limit, but instead relies on a peer increasing the
+   maximum allowed stream identifier.  An endpoint cannot create new
+   streams immediately after cancelling an open stream; their peer needs
+   to send a message to make more streams available.  In QUIC therefore,
+   a malicious endpoint can only create and cancel a finite number of
    streams, after which their peer needs to provide consent to continue.
 
    This document ports the QUIC stream concurrency limit mechanisms to
