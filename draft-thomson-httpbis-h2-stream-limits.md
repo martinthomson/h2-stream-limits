@@ -82,9 +82,9 @@ is necessary; if cancellation is treated as abusive, it is possible that the
 treatment necessary to prevent attacks might unintentionally punish some
 clients.
 
-In HTTP/3 {{RFC9114}}, the QUIC protocol it is built {{!QUIC=RFC9000}} contains
-an alternative mechanism for limiting concurrency.  The scheme in QUIC, as
-described in {{Section 4.6 of QUIC}}, does not set a concurrent stream limit,
+The QUIC protocol {{!QUIC=RFC9000}} on which HTTP/3 {{RFC9114}} is built
+contains an alternative mechanism for limiting concurrency.  The scheme in QUIC,
+as described in {{Section 4.6 of QUIC}}, does not set a concurrent stream limit,
 but instead relies on a peer increasing the maximum allowed stream identifier.
 An endpoint cannot create new streams immediately after cancelling an open
 stream; their peer needs to send a message to make more streams available.  In
