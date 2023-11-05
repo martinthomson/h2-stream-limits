@@ -133,8 +133,8 @@ Identifier field.
 
 The Reserved field MUST be set to zero when sending and ignored on receipt.
 
-The Maximum Stream Identifier field contains the maximum value that a stream
-identifier can use when the recipient of this frame creates or reserves a
+The Maximum Stream Identifier field contains the maximum value of stream
+identifier that a recipient of this frame can use when it creates or reserves a
 stream; see {{Section 5.1 of RFC9113}} for how streams are created.
 
 A `MAX_STREAMS` frame MUST be sent on stream 0.  Receipt of a `MAX_STREAMS`
@@ -142,7 +142,7 @@ frame on any other stream MUST be treated as a connection error of type
 PROTOCOL_ERROR; see {{Section 5.4.1 of RFC9113}}.
 
 An endpoint MUST treat receipt of a `MAX_STREAMS` frame with a length other than
-4 as a connection error of type FRAME_TYPE_ERROR; see {{Section 5.4.1 of
+4 as a connection error of type FRAME_SIZE_ERROR; see {{Section 5.4.1 of
 RFC9113}}.
 
 A client MUST treat receipt of an odd-numbered Maximum Stream Identifier as a
