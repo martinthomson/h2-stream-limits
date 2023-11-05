@@ -168,9 +168,8 @@ Endpoints can only increase the value that they include in a `MAX_STREAMS`
 frame.  An endpoint MUST treat receipt of a Maximum Stream Identifier that is
 equal to or smaller than a value that it has previously received as a connection
 error of type PROTOCOL_ERROR; see {{Section 5.4.1 of RFC9113}}.  Note that a
-value of 0, which can be used to indicate support for this feature (see
-{{negotiating}}) without permitting the creation of streams, is permitted for
-both client and server.
+value of 0 can be sent one time by either client or server to indicate support
+for this feature without permitting the creation of streams; see {{negotiating}}.
 
 An implementation can support a similar concurrency limit to that provided by
 `SETTINGS_MAX_CONCURRENT_STREAMS`.  The initial value can be set to twice the
