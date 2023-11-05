@@ -4,8 +4,8 @@
 
 HTTP                                                          M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         12 October 2023
-Expires: 14 April 2024
+Intended status: Standards Track                         5 November 2023
+Expires: 8 May 2024
 
 
                   Using HTTP/3 Stream Limits in HTTP/2
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 April 2024.
+   This Internet-Draft will expire on 8 May 2024.
 
 Copyright Notice
 
@@ -170,26 +170,26 @@ Table of Contents
    The Reserved field MUST be set to zero when sending and ignored on
    receipt.
 
-   The Maximum Stream Identifier field contains the maximum value that a
-   stream identifier can use when the recipient of this frame creates or
-   reserves a stream; see Section 5.1 of [HTTP/2] for how streams are
-   created.
+   The Maximum Stream Identifier field contains the maximum value of
+   stream identifier that a recipient of this frame can use when it
+   creates or reserves a stream; see Section 5.1 of [HTTP/2] for how
+   streams are created.
 
    A MAX_STREAMS frame MUST be sent on stream 0.  Receipt of a
    MAX_STREAMS frame on any other stream MUST be treated as a connection
    error of type PROTOCOL_ERROR; see Section 5.4.1 of [HTTP/2].
 
    An endpoint MUST treat receipt of a MAX_STREAMS frame with a length
-   other than 4 as a connection error of type FRAME_TYPE_ERROR; see
+   other than 4 as a connection error of type FRAME_SIZE_ERROR; see
    Section 5.4.1 of [HTTP/2].
 
-   A client MUST treat receipt of an odd-numbered Maximum Stream
+   A client MUST treat receipt of an even-numbered Maximum Stream
    Identifier as a connection error of type PROTOCOL_ERROR; see
-   Section 5.4.1 of [HTTP/2].  Similarly, a server MUST treat receipt of
-   an even-numbered Maximum Stream Identifier as a connection error,
-   with an exception of a value of 0, which can be used to indicate
-   support for the feature without enabling the creation of streams (see
-   Section 3.2).
+   Section 5.4.1 of [HTTP/2], with an exception of a value of 0, which
+   can be used to indicate support for the feature without enabling the
+   creation of streams (see Section 3.2).  Similarly, a server MUST
+   treat receipt of an odd-numbered Maximum Stream Identifier as a
+   connection error.
 
 3.1.  Applying Stream Limits
 
