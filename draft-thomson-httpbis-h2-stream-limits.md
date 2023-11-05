@@ -145,12 +145,12 @@ An endpoint MUST treat receipt of a `MAX_STREAMS` frame with a length other than
 4 as a connection error of type FRAME_SIZE_ERROR; see {{Section 5.4.1 of
 RFC9113}}.
 
-A client MUST treat receipt of an odd-numbered Maximum Stream Identifier as a
-connection error of type PROTOCOL_ERROR; see {{Section 5.4.1 of RFC9113}}.
-Similarly, a server MUST treat receipt of an even-numbered Maximum Stream
-Identifier as a connection error, with an exception of a value of 0, which can
-be used to indicate support for the feature without enabling the creation of
-streams (see {{negotiating}}).
+A client MUST treat receipt of an even-numbered Maximum Stream Identifier as a
+connection error of type PROTOCOL_ERROR; see {{Section 5.4.1 of RFC9113}}, with
+an exception of a value of 0, which can be used to indicate support for the
+feature without enabling the creation of streams (see {{negotiating}}).
+Similarly, a server MUST treat receipt of an odd-numbered Maximum Stream
+Identifier as a connection error.
 
 
 ## Applying Stream Limits {#limits}
