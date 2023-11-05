@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-11-02T01:12:08.669260+00:00",
+  "timestamp": "2023-11-05T01:17:20.818045+00:00",
   "repo": "martinthomson/h2-stream-limits",
   "labels": [
     {
@@ -49,6 +49,38 @@
       "color": "ffffff"
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOKburo8512m60",
+      "title": "Recommend that clients limit stream creation for new connections",
+      "url": "https://github.com/martinthomson/h2-stream-limits/issues/1",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Right now, the initial stream limit is \u221e (or really $2^{30}$).  This isn't ideal and doesn't really reflect good practice. We should recommend -- or even require -- that clients limit the number of streams that they create before learning the server stream limit.\r\n\r\nPicking the right number is a little hazardous, but I think that we can look at common practice and go with a more conservative number than the 100 we currently recommend.  Many servers will want to increase that, but it shouldn't be too much of a problem if clients cannot open that many requests immediately.\r\n\r\nIf the number is too high for a server, we can rely on the existing HTTP/2 recommendation where the server is required to reject excess requests.  With a relatively small limit, the effect of that should be more manageable.",
+      "createdAt": "2023-11-04T09:17:51Z",
+      "updatedAt": "2023-11-04T11:43:51Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "LPardue",
+          "authorAssociation": "NONE",
+          "body": "You probably already had this in mind but allowing a client overshoot would require a relaxation of https://martinthomson.github.io/h2-stream-limits/draft-thomson-httpbis-h2-stream-limits.html#section-3.1-2, or else the server will close the connection. Possibly even like \"MUST enforce (but not during the first client flight or an RTT or something\"",
+          "createdAt": "2023-11-04T10:59:40Z",
+          "updatedAt": "2023-11-04T10:59:40Z"
+        },
+        {
+          "author": "kazuho",
+          "authorAssociation": "NONE",
+          "body": "+1, as said on the mailing list.\r\n\r\nWe should use the opportunity of defining a protocol extension to fix the issue throughout the entire lifecyle of the connection, the only way of doing that would be to \"require\" clients stay within a specific number from the beginning of the connection.\r\n\r\nI'm fine with having a hard-coded number. In practice, the only moment this applies to clients would be during 0-RTT.",
+          "createdAt": "2023-11-04T11:43:51Z",
+          "updatedAt": "2023-11-04T11:43:51Z"
+        }
+      ]
+    }
+  ],
   "pulls": []
 }
