@@ -65,10 +65,11 @@ endpoint, but the value can be changed at any time. Most endpoints set a smaller
 value in an attempt to protect the resources that are committed when processing
 a stream.
 
-This limit is not effective in the case that streams are quickly cancelled or
-closed. The creator of a stream can cancel it using the `RST_STREAM` frame.  The
-creator of a stream can also purposefully send frames that violate HTTP/2 rules,
-forcing a compliant receiver to close the stream. Either of these methods has
+This limit is not effective in the case that streams are quickly cancelled.
+The creator of a stream can cancel it using the `RST_STREAM` frame.  The
+creator of a stream could also cause its peer to send `RST_STREAM` by
+purposefully sending frames that violate HTTP/2 rules, unless errors also
+cause the peer to close the connection. Either of these methods has
 deterministic and immediate effect, which means that the stream no longer counts
 against the concurrent stream limit.  This means that a malicious endpoint can
 create or cancel an unbounded number of streams as long as its peer does not set
