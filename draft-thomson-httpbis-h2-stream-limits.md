@@ -199,10 +199,11 @@ This extension is not negotiated using the `SETTINGS` frame.  Instead, the
 receipt of a `MAX_STREAMS` frame indicates support for the feature.
 
 An endpoint that supports this extension MUST send a `MAX_STREAMS` frame after
-establishing a connection, after the HTTP/2 connection preface ({{Section 3.4 of
-RFC9113}}).  When a `MAX_STREAMS` frame is received, the endpoint MUST
-subsequently only create streams according to the rules in {{limits}} and
-ignore any value of the `SETTINGS_MAX_CONCURRENT_STREAMS` setting.
+establishing a connection, after the HTTP/2 connection preface and `SETTINGS`
+frame ({{Section 3.4 of RFC9113}}).  When a `MAX_STREAMS` frame is received, the
+endpoint MUST subsequently only create streams according to the rules in
+{{limits}} and ignore any value of the `SETTINGS_MAX_CONCURRENT_STREAMS`
+setting.
 
 
 # Security Considerations
