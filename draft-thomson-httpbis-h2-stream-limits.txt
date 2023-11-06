@@ -4,8 +4,9 @@
 
 HTTP                                                          M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         5 November 2023
-Expires: 8 May 2024
+Intended status: Standards Track                               L. Pardue
+Expires: 9 May 2024                                           Cloudflare
+                                                         6 November 2023
 
 
                   Using HTTP/3 Stream Limits in HTTP/2
@@ -49,7 +50,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 May 2024.
+   This Internet-Draft will expire on 9 May 2024.
 
 Copyright Notice
 
@@ -78,24 +79,29 @@ Table of Contents
      6.1.  Normative References
      6.2.  Informative References
    Acknowledgments
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
-   HTTP/2 [HTTP/2] allows endpoints to describe a concurrency limit for
-   streams (SETTINGS_MAX_CONCURRENT_STREAMS).  Initially, the stream
-   concurrency limit is only bounded by the maximum number of streams
-   that can be created, which is 2^30 for each endpoint, but the value
-   can be changed at any time.  Most endpoints set a smaller value in an
-   attempt to protect the resources that are committed when processing a
-   stream.
+   HTTP/2 allows endpoints to declare the concurrency limit for streams
+   created by their peer (SETTINGS_MAX_CONCURRENT_STREAMS; see
+   Section 5.1.2 of [HTTP/2]).  Initially, the stream concurrency limit
+   is only bounded by the maximum number of streams that can be created,
+   which is 2^30 for each endpoint, but the value can be changed at any
+   time.  Most endpoints set a smaller value in an attempt to protect
+   the resources that are committed when processing a stream.
 
    This limit is not effective in the case that streams are quickly
-   cancelled.  Stream cancellation with the RST_STREAM frame has
-   immediate effect, which means that the stream no longer counts
-   against the concurrent stream limit.  This means that a malicious
-   endpoint can create and cancel an unbounded number of streams as long
-   as its peer does not set a limit of zero.
+   cancelled.  The creator of a stream can cancel it using the
+   RST_STREAM frame.  The creator of a stream could also cause its peer
+   to send RST_STREAM by purposefully sending frames that violate HTTP/2
+   rules, unless errors also cause the peer to close the connection.
+   Either of these methods has deterministic and immediate effect, which
+   means that the stream no longer counts against the concurrent stream
+   limit.  This means that a malicious endpoint can create or cancel an
+   unbounded number of streams as long as its peer does not set a limit
+   of zero.  For clarity, we'll refer to either of these methods as
+   "cancelling".
 
    If the creation of the stream results in the expenditure of
    resources, rapidly creating and cancelling streams can exhaust
@@ -304,8 +310,13 @@ Acknowledgments
    part of [CVE-2023-44487], so maybe those behind the botnet
    responsible for that attack deserve some credit.
 
-Author's Address
+Authors' Addresses
 
    Martin Thomson
    Mozilla
    Email: mt@lowentropy.net
+
+
+   Lucas Pardue
+   Cloudflare
+   Email: lucaspardue.24.7@gmail.com
