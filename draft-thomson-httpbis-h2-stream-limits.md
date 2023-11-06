@@ -27,6 +27,10 @@ author:
     fullname: Martin Thomson
     organization: Mozilla
     email: "mt@lowentropy.net"
+ -
+    fullname: Lucas Pardue
+    organization: Cloudflare
+    email: "lucaspardue.24.7@gmail.com"
 
 normative:
   RFC9113:
@@ -53,18 +57,24 @@ of abuse.
 
 # Introduction
 
-HTTP/2 {{RFC9113}} allows endpoints to describe a concurrency limit for streams
-(`SETTINGS_MAX_CONCURRENT_STREAMS`).  Initially, the stream concurrency limit is
-only bounded by the maximum number of streams that can be created, which is
-2<sup>30</sup> for each endpoint, but the value can be changed at any time.
-Most endpoints set a smaller value in an attempt to protect the resources that
-are committed when processing a stream.
+HTTP/2 allows endpoints to declare the concurrency limit for streams created by
+their peer (`SETTINGS_MAX_CONCURRENT_STREAMS`; see {{Section 5.1.2 of
+RFC9113}}). Initially, the stream concurrency limit is only bounded by the
+maximum number of streams that can be created, which is 2<sup>30</sup> for each
+endpoint, but the value can be changed at any time. Most endpoints set a smaller
+value in an attempt to protect the resources that are committed when processing
+a stream.
 
 This limit is not effective in the case that streams are quickly cancelled.
-Stream cancellation with the `RST_STREAM` frame has immediate effect, which
-means that the stream no longer counts against the concurrent stream limit.
-This means that a malicious endpoint can create and cancel an unbounded number
-of streams as long as its peer does not set a limit of zero.
+The creator of a stream can cancel it using the `RST_STREAM` frame.  The
+creator of a stream could also cause its peer to send `RST_STREAM` by
+purposefully sending frames that violate HTTP/2 rules, unless errors also
+cause the peer to close the connection. Either of these methods has
+deterministic and immediate effect, which means that the stream no longer counts
+against the concurrent stream limit.  This means that a malicious endpoint can
+create or cancel an unbounded number of streams as long as its peer does not set
+a limit of zero.  For clarity, we'll refer to either of these methods as
+"cancelling".
 
 If the creation of the stream results in the expenditure of resources, rapidly
 creating and cancelling streams can exhaust resources.  For a server, clients
