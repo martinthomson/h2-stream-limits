@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-11-05T01:17:20.818045+00:00",
+  "timestamp": "2023-11-07T01:14:12.945962+00:00",
   "repo": "martinthomson/h2-stream-limits",
   "labels": [
     {
@@ -67,7 +67,7 @@
       "comments": [
         {
           "author": "LPardue",
-          "authorAssociation": "NONE",
+          "authorAssociation": "COLLABORATOR",
           "body": "You probably already had this in mind but allowing a client overshoot would require a relaxation of https://martinthomson.github.io/h2-stream-limits/draft-thomson-httpbis-h2-stream-limits.html#section-3.1-2, or else the server will close the connection. Possibly even like \"MUST enforce (but not during the first client flight or an RTT or something\"",
           "createdAt": "2023-11-04T10:59:40Z",
           "updatedAt": "2023-11-04T10:59:40Z"
@@ -80,7 +80,332 @@
           "updatedAt": "2023-11-04T11:43:51Z"
         }
       ]
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOKburo8514uyh",
+      "title": "Can send multiple MAX_STREAMS with Maximum Stream Identifier 0 value?",
+      "url": "https://github.com/martinthomson/h2-stream-limits/issues/3",
+      "state": "CLOSED",
+      "author": "LPardue",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "> Endpoints can only increase the value that they include in a MAX_STREAMS frame. An endpoint MUST treat receipt of a Maximum Stream Identifier that is equal to or smaller than a value that it has previously received as a connection error of type PROTOCOL_ERROR; see [Section 5.4.1](https://rfc-editor.org/rfc/rfc9113#section-5.4.1) of [[HTTP/2](https://github.com/martinthomson/h2-stream-limits/issues/new#RFC9113)]. Note that a value of 0, which can be used to indicate support for this feature (see [Section 3.2](https://github.com/martinthomson/h2-stream-limits/issues/new#negotiating)) without permitting the creation of streams, is permitted for both client and server.\r\n\r\nThe exception might allow an endpoint to send multiple MAX_STREAMS with 0, which is pointless but might be spammable. \r\n\r\nSuggest we tighten the exception to allow only 1 instance of  0 MAX_STREAMS frame in a connection.",
+      "createdAt": "2023-11-05T14:10:25Z",
+      "updatedAt": "2023-11-05T14:56:08Z",
+      "closedAt": "2023-11-05T14:56:08Z",
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "body": "That was my intent: the note says that you can go from max = unknown to max = 0.  That should only happen once though.  I'll try to clarify.",
+          "createdAt": "2023-11-05T14:13:24Z",
+          "updatedAt": "2023-11-05T14:13:24Z"
+        }
+      ]
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 2,
+      "id": "PR_kwDOKburo85enk3X",
+      "title": "talk about stream violation closure too",
+      "url": "https://github.com/martinthomson/h2-stream-limits/pull/2",
+      "state": "MERGED",
+      "author": "LPardue",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Imagine a request with body. In some deployments, they might parse HEADERS and then pass on the request to a backend without awaiting/buffering a request body. \r\n\r\nA client can \"cancel\" the stream, without resetting the stream using RST_STREAM, by violating the protocol rules in https://www.rfc-editor.org/rfc/rfc9113.html#section-8.1. The client can depend on a compliant server to do this deterministically and hence construct frame sequences that rapid cancel and create.\r\n\r\nThis PR adds some awareness for this form of the attack but tries to avoid polluting the whole doc with it.",
+      "createdAt": "2023-11-05T13:59:23Z",
+      "updatedAt": "2023-11-06T06:51:57Z",
+      "baseRepository": "martinthomson/h2-stream-limits",
+      "baseRefName": "main",
+      "baseRefOid": "9f79d4feb398104668f623d666396c6fea547b0b",
+      "headRepository": "LPardue/h2-stream-limits",
+      "headRefName": "main",
+      "headRefOid": "e0d24241bed5be44c948aebe21bac257a3221919",
+      "closedAt": "2023-11-06T06:51:57Z",
+      "mergedAt": "2023-11-06T06:51:57Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "858f9113859025c09d45a698c1e619d6c4311ff8"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKburo85mKXfF",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:11:33Z",
+          "updatedAt": "2023-11-05T14:12:15Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Do you think that it is worth noting that a stream error like this could result in a connection error, which would make the error -> close/reset path unavailable to an attacker.  Obviously, an attacker can simply check what the victim would do before trying that approach.",
+              "createdAt": "2023-11-05T14:11:33Z",
+              "updatedAt": "2023-11-05T14:12:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKXtS",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:17:32Z",
+          "updatedAt": "2023-11-05T14:17:33Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "That crossed my mind yes. Even if a client didn't check, there's not much punishment for just giving it a go - it either works or it doesn't and the resources (e.g. bandwidth) required to try it out are not enormous.\r\n\r\nAn endpoint might even close _some_ streams until a threshold is reached - and then close the connection. So trying to explain that felt like it could be a distraction.\r\n\r\nI can add a sentence here if you like, or punt it to the security considerations, or do nothing.",
+              "createdAt": "2023-11-05T14:17:32Z",
+              "updatedAt": "2023-11-05T14:17:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYE8",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:27:59Z",
+          "updatedAt": "2023-11-05T14:28:00Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "How about this?\r\n\r\n```suggestion\r\nThis limit is not effective in the case that streams are quickly cancelled.\r\nThe creator of a stream can cancel it using the `RST_STREAM` frame.  The\r\ncreator of a stream could also cause its peer to send `RST_STREAM` by\r\npurposefully sending frames that violate HTTP/2 rules, unless errors also\r\ncause the peer to close the connection. Either of these methods has\r\n```",
+              "createdAt": "2023-11-05T14:28:00Z",
+              "updatedAt": "2023-11-05T14:28:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYM8",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:31:31Z",
+          "updatedAt": "2023-11-05T14:31:31Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "So ... I have an implementation that responds with a 400 Bad Request + END_STREAM :smile: ",
+              "createdAt": "2023-11-05T14:31:31Z",
+              "updatedAt": "2023-11-05T14:31:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYTW",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:34:06Z",
+          "updatedAt": "2023-11-05T14:34:06Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Did you open an issue on HTTP/2 suggesting that we permit that reaction?",
+              "createdAt": "2023-11-05T14:34:06Z",
+              "updatedAt": "2023-11-05T14:34:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYaP",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:37:28Z",
+          "updatedAt": "2023-11-05T14:37:28Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "yeh nah, this is that other discussion we were having on the list. My interpretation of https://datatracker.ietf.org/doc/html/rfc9114#section-4.1.2-5, specifically\r\n\r\n> For malformed requests, a server MAY send an HTTP response indicating the error prior to closing or resetting the stream.\r\n\r\nis that its fine not to send a RST_STREAM if I'm going to close the stream any way",
+              "createdAt": "2023-11-05T14:37:28Z",
+              "updatedAt": "2023-11-05T14:37:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYf_",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:40:07Z",
+          "updatedAt": "2023-11-05T14:40:07Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "I know.  It's just that your reaction is off the books for now, so we don't need to say that it's acceptable here.",
+              "createdAt": "2023-11-05T14:40:07Z",
+              "updatedAt": "2023-11-05T14:40:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKYrh",
+          "commit": {
+            "abbreviatedOid": "9903f94"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:44:02Z",
+          "updatedAt": "2023-11-05T14:44:02Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "Fair",
+              "createdAt": "2023-11-05T14:44:02Z",
+              "updatedAt": "2023-11-05T14:44:02Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "PR_kwDOKburo85enlz8",
+      "title": "Fixup frame specifics",
+      "url": "https://github.com/martinthomson/h2-stream-limits/pull/4",
+      "state": "MERGED",
+      "author": "LPardue",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixup frame definition",
+      "createdAt": "2023-11-05T14:12:02Z",
+      "updatedAt": "2023-11-05T14:22:58Z",
+      "baseRepository": "martinthomson/h2-stream-limits",
+      "baseRefName": "main",
+      "baseRefOid": "9f79d4feb398104668f623d666396c6fea547b0b",
+      "headRepository": "LPardue/h2-stream-limits",
+      "headRefName": "frame-of-deftness",
+      "headRefOid": "504299e9891aab65774cb06a7619a9cb81440125",
+      "closedAt": "2023-11-05T14:22:58Z",
+      "mergedAt": "2023-11-05T14:22:57Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "6d73142ef6652a138aabcd4e301011756923f1a0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKburo85mKXlb",
+          "commit": {
+            "abbreviatedOid": "ff7606e"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2023-11-05T14:14:08Z",
+          "updatedAt": "2023-11-05T14:15:28Z",
+          "comments": [
+            {
+              "originalPosition": 43,
+              "body": "Didyou intend to roll up the other PR here?  We can do PRs in parallel.",
+              "createdAt": "2023-11-05T14:14:09Z",
+              "updatedAt": "2023-11-05T14:15:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOKburo85mKX1D",
+          "commit": {
+            "abbreviatedOid": "ff7606e"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2023-11-05T14:21:01Z",
+          "updatedAt": "2023-11-05T14:21:01Z",
+          "comments": [
+            {
+              "originalPosition": 43,
+              "body": "Sorry no, I meant to split them but completely bollocksed it up. Force pushed to drop the unrelated commit.",
+              "createdAt": "2023-11-05T14:21:01Z",
+              "updatedAt": "2023-11-05T14:21:01Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "PR_kwDOKburo85enoIE",
+      "title": "MAX_STREAMS 0 is just once",
+      "url": "https://github.com/martinthomson/h2-stream-limits/pull/5",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "This note was not intended to imply that a zero could be sent multiple times.\r\n\r\nCloses #3.",
+      "createdAt": "2023-11-05T14:43:35Z",
+      "updatedAt": "2023-11-05T15:01:16Z",
+      "baseRepository": "martinthomson/h2-stream-limits",
+      "baseRefName": "main",
+      "baseRefOid": "6d73142ef6652a138aabcd4e301011756923f1a0",
+      "headRepository": "martinthomson/h2-stream-limits",
+      "headRefName": "max0-once",
+      "headRefOid": "2adffa50ab2d9958684703cf67ed121da2273b7e",
+      "closedAt": "2023-11-05T14:56:07Z",
+      "mergedAt": "2023-11-05T14:56:07Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "4e8c4490608ba402a132750c5fc580eb70676c87"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKburo85mKZHs",
+          "commit": {
+            "abbreviatedOid": "2adffa5"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2023-11-05T14:51:34Z",
+          "updatedAt": "2023-11-05T14:51:34Z",
+          "comments": []
+        }
+      ]
+    }
+  ]
 }
