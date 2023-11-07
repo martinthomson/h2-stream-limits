@@ -5,8 +5,8 @@
 HTTP                                                          M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               L. Pardue
-Expires: 9 May 2024                                           Cloudflare
-                                                         6 November 2023
+Expires: 10 May 2024                                          Cloudflare
+                                                         7 November 2023
 
 
                   Using HTTP/3 Stream Limits in HTTP/2
@@ -50,7 +50,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 May 2024.
+   This Internet-Draft will expire on 10 May 2024.
 
 Copyright Notice
 
@@ -236,10 +236,10 @@ Table of Contents
 
    An endpoint that supports this extension MUST send a MAX_STREAMS
    frame after establishing a connection, after the HTTP/2 connection
-   preface (Section 3.4 of [HTTP/2]).  When a MAX_STREAMS frame is
-   received, the endpoint MUST subsequently only create streams
-   according to the rules in Section 3.1 and ignore any value of the
-   SETTINGS_MAX_CONCURRENT_STREAMS setting.
+   preface and SETTINGS frame (Section 3.4 of [HTTP/2]).  When a
+   MAX_STREAMS frame is received, the endpoint MUST subsequently only
+   create streams according to the rules in Section 3.1 and ignore any
+   value of the SETTINGS_MAX_CONCURRENT_STREAMS setting.
 
 4.  Security Considerations
 
