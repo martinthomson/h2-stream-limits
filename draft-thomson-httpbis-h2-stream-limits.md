@@ -205,6 +205,13 @@ endpoint MUST subsequently only create streams according to the rules in
 {{limits}} and ignore any value of the `SETTINGS_MAX_CONCURRENT_STREAMS`
 setting.
 
+For compatibility with existing implementations which might not support
+`MAX_STREAMS`, endpoints can set `SETTINGS_MAX_CONCURRENT_STREAMS` to a value
+less than or equal to the number of concurrent streams intended to be allowed
+with `MAX_STREAMS`.  An endpoint MUST NOT enforce a `MAX_STREAMS` limit lower
+than `SETTINGS_MAX_CONCURRENT_STREAMS` unless the endpoint knows that the other
+endpoint supports `MAX_STREAMS`.
+
 
 # Security Considerations
 
