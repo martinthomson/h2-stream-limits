@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-11-07T01:14:12.945962+00:00",
+  "timestamp": "2023-11-09T01:14:01.740578+00:00",
   "repo": "martinthomson/h2-stream-limits",
   "labels": [
     {
@@ -62,7 +62,7 @@
       "labels": [],
       "body": "Right now, the initial stream limit is \u221e (or really $2^{30}$).  This isn't ideal and doesn't really reflect good practice. We should recommend -- or even require -- that clients limit the number of streams that they create before learning the server stream limit.\r\n\r\nPicking the right number is a little hazardous, but I think that we can look at common practice and go with a more conservative number than the 100 we currently recommend.  Many servers will want to increase that, but it shouldn't be too much of a problem if clients cannot open that many requests immediately.\r\n\r\nIf the number is too high for a server, we can rely on the existing HTTP/2 recommendation where the server is required to reject excess requests.  With a relatively small limit, the effect of that should be more manageable.",
       "createdAt": "2023-11-04T09:17:51Z",
-      "updatedAt": "2023-11-04T11:43:51Z",
+      "updatedAt": "2023-11-08T22:20:58Z",
       "closedAt": null,
       "comments": [
         {
@@ -78,6 +78,27 @@
           "body": "+1, as said on the mailing list.\r\n\r\nWe should use the opportunity of defining a protocol extension to fix the issue throughout the entire lifecyle of the connection, the only way of doing that would be to \"require\" clients stay within a specific number from the beginning of the connection.\r\n\r\nI'm fine with having a hard-coded number. In practice, the only moment this applies to clients would be during 0-RTT.",
           "createdAt": "2023-11-04T11:43:51Z",
           "updatedAt": "2023-11-04T11:43:51Z"
+        },
+        {
+          "author": "gstrauss",
+          "authorAssociation": "NONE",
+          "body": "+1\r\n\r\nMy understanding is that QUIC max streams is 0 for each of the various stream types, if a limit is not provided during negotiation.  While I think that 0 is too low for HTTP/2, any large number (including 100) is plenty to do damage in a DoS attack if a server has to handle that quantity before rejecting.  It is also a burden on smaller systems, such as embedded systems where CPU and memory are constrained.  On such systems, the CPU overhead of TLS encryption can easily make the embedded system slower than network wire speed.\r\n\r\nlighttpd sets SETTINGS_MAX_CONCURRENT_STREAMS 8, but tries to be more accommodating to an initial burst of streams prior to SETTINGS ackn.  However, a malicious client might not send SETTINGS ackn.  That is true for more than only malicious clients.  I found when prototyping HTTP/2 rapid reset attacks and mitigations against my own private server using an off-the-shelf python HTTP/2 library, misuse of the library (which I did!) can also result in SETTINGS ackn not being sent.\r\n\r\nF5 sets SETTINGS_MAX_CONCURRENT_STREAMS 10 according to https://my.f5.com/manage/s/article/K000137106,\r\n\"The default value for streams per connection is set to 10 because F5 had anticipated this type of flaw in the HTTP/2 protocol.\"\r\n\r\nWhile I admit my bias since I am a lighttpd developer, I propose that client endpoints supporting MAX_STREAMS should start with SETTINGS_MAX_CONCURRENT_STREAMS 8 or 10 until the client receive the initial server SETTINGS frame following the server HTTP/2 connection preface.  Once the initial SETTINGS frame is receive from the server, if SETTINGS_MAX_CONCURRENT_STREAMS was not sent by the server, then client may choose to presume prior behavior (with the RFC 7540 \"recommendation\" of 100).  Note: there may be a delay before the client receives the (optional) MAX_STREAMS frame in the frames that follow HTTP/2 connection preface and SETTINGS.\r\n\r\nImplementing MAX_STREAMS in my server becomes much more complex -- and much less effective against attacks -- if I have to support a large number of initial streams from the client even if the client sends MAX_STREAMS.  While the RFCs allow a server to refuse streams for any reason, practical considerations currently force even small servers to consider trying to somehow handle a large number of initial requests instead of immediately refusing them.  With well-behaved clients, a server can switch to more defined behavior once SETTINGS ackn is received from client.\r\n\r\nPlease consider settings a small, non-zero value such as 8 or 10 for SETTINGS_MAX_CONCURRENT_STREAMS when clients support MAX_STREAMS.",
+          "createdAt": "2023-11-08T21:58:17Z",
+          "updatedAt": "2023-11-08T21:58:17Z"
+        },
+        {
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "body": "In case it isn't clear, I support a Conservative sub-100 limit.\r\n\r\nI might be inclined to try and make that  enforced more strongly using an alternative mechanism that thus draft, but let's see how IETF 118 discussions go.",
+          "createdAt": "2023-11-08T22:07:53Z",
+          "updatedAt": "2023-11-08T22:07:53Z"
+        },
+        {
+          "author": "gstrauss",
+          "authorAssociation": "NONE",
+          "body": "BTW, if MAX_STREAMS proposal *recommends* instead of *requiring* a lower initial limit for SETTINGS_MAX_CONCURRENT_STREAMS, then the Security Considerations section should add a paragraph or two describing how MAX_STREAMS does not address the problems with effectively unlimited (2<sup>30</sup>) burst of initial requests.  Rather than do that, I hope to see a lower limit *required* for SETTINGS_MAX_CONCURRENT_STREAMS when MAX_STREAMS is supported.",
+          "createdAt": "2023-11-08T22:20:22Z",
+          "updatedAt": "2023-11-08T22:20:58Z"
         }
       ]
     },
@@ -404,6 +425,103 @@
           "createdAt": "2023-11-05T14:51:34Z",
           "updatedAt": "2023-11-05T14:51:34Z",
           "comments": []
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "id": "PR_kwDOKburo85e0eiO",
+      "title": "Mention the SETTINGS frame after the preface",
+      "url": "https://github.com/martinthomson/h2-stream-limits/pull/6",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "I always think of this SETTINGS frame as being part of the preface, but it really isn't.",
+      "createdAt": "2023-11-07T15:16:44Z",
+      "updatedAt": "2023-11-07T16:47:01Z",
+      "baseRepository": "martinthomson/h2-stream-limits",
+      "baseRefName": "main",
+      "baseRefOid": "858f9113859025c09d45a698c1e619d6c4311ff8",
+      "headRepository": "martinthomson/h2-stream-limits",
+      "headRefName": "preface-SETTINGS",
+      "headRefOid": "1b8ba5047f811140e8a5009547b565da69d28755",
+      "closedAt": "2023-11-07T16:46:57Z",
+      "mergedAt": "2023-11-07T16:46:57Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "31e20096b845a45fc171ac43d8766b77aaf47ce5"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKburo85maP1Q",
+          "commit": {
+            "abbreviatedOid": "1b8ba50"
+          },
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2023-11-07T16:27:42Z",
+          "updatedAt": "2023-11-07T16:27:42Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "id": "PR_kwDOKburo85e0f0f",
+      "title": "Trying out text",
+      "url": "https://github.com/martinthomson/h2-stream-limits/pull/7",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "A suggestion from Glenn Strauss, that I've tweaked a little.",
+      "createdAt": "2023-11-07T15:19:04Z",
+      "updatedAt": "2023-11-07T17:23:13Z",
+      "baseRepository": "martinthomson/h2-stream-limits",
+      "baseRefName": "main",
+      "baseRefOid": "858f9113859025c09d45a698c1e619d6c4311ff8",
+      "headRepository": "martinthomson/h2-stream-limits",
+      "headRefName": "compatible-max-streams",
+      "headRefOid": "e6a8a32e80f21577c081e92a7c1b730bbc550051",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "LPardue",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm not convinced this is the right thing to be saying - I need a bit more time to think on it. But my rationale is that I want to advertise a smaller limit for concurrency and I'm currently railroaded into allowing 100 MAX_CONCURRENT_STREAMS because clients don't even wait for the SETTINGS. \r\n\r\nFurthermore, regarding the MUST NOT, that seems overkill and the opposite of our principles of giving control or agency to the thing that can be overwhelmed.",
+          "createdAt": "2023-11-07T17:23:13Z",
+          "updatedAt": "2023-11-07T17:23:13Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKburo85mZlVI",
+          "commit": {
+            "abbreviatedOid": "e6a8a32"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "See also https://martinthomson.github.io/h2-stream-limits/draft-thomson-httpbis-h2-stream-limits.html#section-3.1-4 where I think that we are saying a very similar thing.  I don't know if this adds much value.",
+          "createdAt": "2023-11-07T15:22:52Z",
+          "updatedAt": "2023-11-07T15:23:43Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "I an not sure about this \"MUST NOT\".  It might be better to just explain the consequences of failing to do this correctly.",
+              "createdAt": "2023-11-07T15:22:52Z",
+              "updatedAt": "2023-11-07T15:23:43Z"
+            }
+          ]
         }
       ]
     }
