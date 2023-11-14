@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-11-12T01:18:13.642448+00:00",
+  "timestamp": "2023-11-14T01:13:50.175071+00:00",
   "repo": "martinthomson/h2-stream-limits",
   "labels": [
     {
@@ -138,7 +138,7 @@
       "labels": [],
       "body": "Require that the client wait for server settings.  In TLS 1.3, that won't add latency.  Also, require that the client remember initial setting value for 0-RTT.",
       "createdAt": "2023-11-09T08:21:57Z",
-      "updatedAt": "2023-11-09T08:48:09Z",
+      "updatedAt": "2023-11-12T23:29:11Z",
       "closedAt": null,
       "comments": [
         {
@@ -147,6 +147,13 @@
           "body": "Sounds solid",
           "createdAt": "2023-11-09T08:48:09Z",
           "updatedAt": "2023-11-09T08:48:09Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "OWNER",
+          "body": "Ilari notes that there are some clients that choke on 0.5RTT from the server.  That will need investigation, otherwise this might introduce unwanted latency.  Those clients are broken, but it's not the first time that broken implementations have prevented us from having nice things.",
+          "createdAt": "2023-11-12T23:29:11Z",
+          "updatedAt": "2023-11-12T23:29:11Z"
         }
       ]
     }
